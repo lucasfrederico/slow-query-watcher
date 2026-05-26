@@ -9,13 +9,13 @@ on:
 
 jobs:
   build:
-    name: Java ${{ matrix.java }} on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
+    name: Java ${{ matrix.java }} + Spring Boot ${{ matrix.spring }}
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         java: ['17', '21']
-        os: [ubuntu-latest]
+        spring: ['3.3', '4.0']
     steps:
       - uses: actions/checkout@v4
 
@@ -31,8 +31,17 @@ jobs:
           java -version
           ./mvnw -v
 
-      - name: Build + unit tests
-        run: ./mvnw -B -e -ntp -pl slow-query-watcher-core -am test
+      - name: Pick Spring Boot profile
+        id: profile
+        run: |
+          if [ "${{ matrix.spring }}" = "4.0" ]; then
+            echo "args=-Pspring-boot-4" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Unit tests
+        run: ./mvnw -B -e -ntp ${{ steps.profile.outputs.args }} -pl slow-query-watcher-core -am test
 
       - name: Integration tests (Testcontainers Postgres + MySQL)
-        run: ./mvnw -B -e -ntp verify
+        run: ./mvnw -B -e -ntp ${{ steps.profile.outputs.args }} verify

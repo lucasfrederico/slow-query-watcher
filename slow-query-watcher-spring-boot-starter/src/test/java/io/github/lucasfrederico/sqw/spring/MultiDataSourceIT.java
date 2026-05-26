@@ -12,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -72,7 +71,10 @@ class MultiDataSourceIT {
         SpringApplication.run(TestApp.class, args);
     }
 
-    @SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+    @SpringBootApplication(excludeName = {
+            "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+            "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration"
+    })
     static class TestApp {
 
         @Bean

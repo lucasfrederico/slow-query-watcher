@@ -89,6 +89,21 @@
         </dependencies>
     </dependencyManagement>
 
+    <profiles>
+        <!--
+            Spring Boot 4.x (4.0 GA April 2026; 4.1 requires Java 21). The starter's
+            API surface (AutoConfiguration, BeanPostProcessor, ConfigurationProperties,
+            TransactionSynchronizationManager) is stable across SB 3.3 and 4.0, so the
+            same code passes both BOMs — CI runs both via a matrix.
+        -->
+        <profile>
+            <id>spring-boot-4</id>
+            <properties>
+                <spring-boot.version>4.0.6</spring-boot.version>
+            </properties>
+        </profile>
+    </profiles>
+
     <build>
         <pluginManagement>
             <plugins>

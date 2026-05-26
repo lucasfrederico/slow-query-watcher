@@ -13,7 +13,6 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 
@@ -26,7 +25,12 @@ import org.springframework.context.annotation.Bean;
  * Spring's {@code JdbcTemplate} ever sees the DataSource, so all JDBC traffic
  * flows through the proxy chain.
  */
-@AutoConfiguration(before = DataSourceAutoConfiguration.class)
+@AutoConfiguration(beforeName = {
+        // Spring Boot 3.x location
+        "org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration",
+        // Spring Boot 4.x location (auto-configurations split into per-feature modules)
+        "org.springframework.boot.jdbc.autoconfigure.DataSourceAutoConfiguration"
+})
 @ConditionalOnClass(DataSource.class)
 @ConditionalOnProperty(prefix = "slow-query-watcher", name = "enabled", havingValue = "true", matchIfMissing = true)
 @EnableConfigurationProperties(SlowQueryProperties.class)

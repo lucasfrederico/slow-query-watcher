@@ -1,13 +1,14 @@
 # slow-query-watcher
 
-> A Spring Boot 3 starter that auto-logs slow JDBC queries with full context —
-> drop the dependency, set a threshold, get one structured log line per slow
-> query with the SQL, parameters, caller stack trace, and active transaction.
+> A Spring Boot starter (3.3+ and 4.0+) that auto-logs slow JDBC queries with
+> full context — drop the dependency, set a threshold, get one structured log
+> line per slow query with the SQL, parameters, caller stack trace, and active
+> transaction.
 
 [![CI](https://github.com/lucasfrederico/slow-query-watcher/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasfrederico/slow-query-watcher/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Java](https://img.shields.io/badge/Java-17%2B-orange)](https://openjdk.org/projects/jdk/17/)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3%2B-brightgreen)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3%20%7C%204.0-brightgreen)](https://spring.io/projects/spring-boot)
 [![JitPack](https://jitpack.io/v/lucasfrederico/slow-query-watcher.svg)](https://jitpack.io/#lucasfrederico/slow-query-watcher)
 
 ## Why?
@@ -48,7 +49,7 @@ exact application frame that issued the call.
 <dependency>
     <groupId>com.github.lucasfrederico.slow-query-watcher</groupId>
     <artifactId>slow-query-watcher-spring-boot-starter</artifactId>
-    <version>v0.1.1</version>
+    <version>v0.1.2</version>
 </dependency>
 ```
 
@@ -160,7 +161,7 @@ marking it `@Primary` if you want to silence the SLF4J one (define a no-op
 
 | | slow-query-watcher | p6spy | datasource-proxy | Hibernate `org.hibernate.SQL` |
 |---|---|---|---|---|
-| Spring Boot 3 starter | ✓ | ✗ | ✗ | (built-in) |
+| Spring Boot 3 + 4 starter | ✓ | ✗ | ✗ | (built-in) |
 | Threshold-based filtering | ✓ | manual | manual | ✗ (logs everything) |
 | Parameter capture | full / redacted / none | yes | yes | only in debug mode |
 | Caller stack trace | ✓ filtered | ✗ | ✗ | ✗ |
@@ -216,18 +217,40 @@ time (just the execution call itself).
 - **v0.3.0** — R2DBC reactive support, `HikariDataSource`-aware wrapping
   (capture pool wait time alongside query time), MyBatis interceptor parity.
 
+## Compatibility
+
+| Spring Boot | Status | Notes |
+|---|---|---|
+| 4.1.x | expected to work | Java 21 baseline; not in CI yet, file an issue if you hit something. |
+| 4.0.x | ✓ tested | Activate with `./mvnw -Pspring-boot-4` locally; CI runs this profile. |
+| 3.5.x | expected to work | Same API surface as 3.3; not in CI but no known issues. |
+| 3.3.x | ✓ tested | Default Spring Boot version in the parent POM. |
+| ≤ 3.2 | not supported | Auto-config uses Spring Boot 3.x `AutoConfiguration.imports`. |
+
+The starter is a single artifact that compiles against Spring Boot 3.3 and
+runs unchanged on 4.0. The reason: `@AutoConfiguration`, `BeanPostProcessor`,
+`@ConditionalOnClass/Property`, `@ConfigurationProperties`, and
+`TransactionSynchronizationManager` are unchanged across the two majors.
+Spring Boot 4 moved some auto-config classes into per-feature modules
+(`DataSourceAutoConfiguration` now lives in `spring-boot-jdbc`), which the
+starter handles by referencing both FQNs via `@AutoConfiguration(beforeName = …)`
+instead of importing the class directly.
+
 ## Build & test
 
 ```bash
 # Unit tests only (fast, no Docker required)
 ./mvnw -pl slow-query-watcher-core -am test
 
-# Full verify with Testcontainers Postgres + MySQL (Docker required)
+# Full verify with Testcontainers Postgres + MySQL (Docker required) — Spring Boot 3.3
 ./mvnw verify
+
+# Same, but against the Spring Boot 4 BOM
+./mvnw -Pspring-boot-4 verify
 ```
 
-The CI matrix runs Java 17 and 21 on Linux against both Postgres 16 and MySQL
-8.4 via Testcontainers.
+The CI matrix runs Java 17 + 21 × Spring Boot 3.3 + 4.0 (four combinations) on
+Linux against Postgres 16 and MySQL 8.4 via Testcontainers.
 
 ## License
 
