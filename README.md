@@ -48,7 +48,7 @@ exact application frame that issued the call.
 <dependency>
     <groupId>com.github.lucasfrederico.slow-query-watcher</groupId>
     <artifactId>slow-query-watcher-spring-boot-starter</artifactId>
-    <version>v0.1.0</version>
+    <version>v0.1.1</version>
 </dependency>
 ```
 
