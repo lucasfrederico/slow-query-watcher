@@ -1,0 +1,6 @@
+jdk:
+  - openjdk17
+
+# Tests run on GitHub Actions (matrix Java 17/21 + Postgres + MySQL Testcontainers).
+# JitPack just needs to compile and package the artifact.
+install: ./mvnw -B -DskipTests clean install
